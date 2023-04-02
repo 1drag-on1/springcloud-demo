@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 47.120.15.196:8848
+    gateway:
+      globalcors:  #全局的跨域处理
+        add-to-simple-url-handler-mapping: true  #解决options请求被拦截问题
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:  #允许哪些网站的跨域请求
+              - "http://localhost:8091"
+              - "http://localhost:8092"
+              - "http://localhost:8093"
+              - "http://localhost:8094"
+            allowedMethods:  #允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*"  #允许在请求中携带的头信息
+            allowCredentials: true  #是否允许携带cookie
+            max-age: 360000  #这次跨域检测的有效期
+
+      routes:
+        - id: merchant-service  #路由标识，必须唯一
+          uri: lb://merchantservice  #路由的目标地址
+          predicates:  #路由断言，判断请求是否符合规则
+            - Path=/merchant/**  #路径断言，判断路径是否以/merchant开头，如果是则符合
+#          filters:
+#            - AddRequestHeader = Truth, Hello World!
+        - id: commodity-service
+          uri: lb://commodityservice
+          predicates:
+            - Path=/commodity/**
+#      default-filters:
+#        - AddRequestHeader=Truth,Hello World!
+server:
+  port: 10010
